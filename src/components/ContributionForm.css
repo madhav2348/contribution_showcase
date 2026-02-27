@@ -12,7 +12,7 @@
   align-items: center;
 }
 
-.form-group label {
+.form-group > label {
   display: block;
   margin-bottom: 0.5rem;
   color: #ffffff;
@@ -91,9 +91,10 @@
 }
 
 .checkbox-label {
-  display: flexbox;
+  display: flex;
   align-items: center;
   justify-content: center;
+  gap: 0.5rem;
   cursor: pointer;
   color: #e0e6ff;
   font-size: 0.9rem;
@@ -112,14 +113,12 @@
   cursor: pointer;
   width: 16px;
   height: 16px;
-  /* margin: 0; */
-margin-right: 0.5rem;
-  /* flex-shrink: 0; */
   appearance: none;
   border: 2px solid #6366f1;
   background: #0f1229;
   position: relative;
-  display: inline-flex;
+  display: block;
+
 }
 
 .checkbox-label input[type="checkbox"]:checked {
