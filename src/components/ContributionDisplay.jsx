@@ -18,6 +18,15 @@ function ContributionDisplay({ contributions }) {
   const startIndex = (currentPage - 1) * itemsPerPage;
   const paginatedItems = sorted.slice(startIndex, startIndex + itemsPerPage);
 
+  // Calculate statistics
+  const stats = {
+    total: contributions.items.length,
+    prs: contributions.items.filter(item => item.type === 'prs').length,
+    issues: contributions.items.filter(item => item.type === 'issues').length,
+    reviews: contributions.items.filter(item => item.type === 'reviews').length,
+    lastUpdated: new Date(contributions.fetchedAt).toLocaleString()
+  };
+
   const handleButtonCopy = (buttonName) => {
     setCopiedButton(buttonName);
     setTimeout(() => setCopiedButton(null), 2000);
@@ -60,6 +69,11 @@ function ContributionDisplay({ contributions }) {
 
     let markdown = '# My Contributions\n\n';
     
+    // Add statistics in inline format
+    markdown += '## Statistics\n\n';
+    markdown += `**Total Contributions:** ${stats.total} | **Merged PRs:** ${stats.prs} | **Issues:** ${stats.issues} | **Reviews:** ${stats.reviews} | **Last Updated:** ${stats.lastUpdated}\n\n`;
+    markdown += '---\n\n';
+    
     Object.entries(groupedByRepo).forEach(([repo, contributions]) => {
       markdown += `## ${repo}\n\n`;
       contributions.forEach(item => {
@@ -74,6 +88,13 @@ function ContributionDisplay({ contributions }) {
 
   const generateTableMarkdown = (items) => {
     let markdown = '# My Contributions\n\n';
+    
+    // Add statistics in inline format
+    markdown += '## Statistics\n\n';
+    markdown += `**Total Contributions:** ${stats.total} | **Merged PRs:** ${stats.prs} | **Issues:** ${stats.issues} | **Reviews:** ${stats.reviews} | **Last Updated:** ${stats.lastUpdated}\n\n`;
+    markdown += '---\n\n';
+    
+    markdown += '## Contributions\n\n';
     markdown += '| Type | Repository | Title | Updated | Link |\n';
     markdown += '|------|------------|-------|---------|------|\n';
     
@@ -88,6 +109,8 @@ function ContributionDisplay({ contributions }) {
 
   return (
     <div className="contribution-display">
+      
+
       <div className="controls">
         <div className="control-group">
           <label>Format:</label>
@@ -118,9 +141,30 @@ function ContributionDisplay({ contributions }) {
           </button>
         </div>
       </div>
+      <div className="stats-section">
+        <div className="stat-item">
+          <span className="stat-label">Total Contributions:</span>
+          <span className="stat-value">{stats.total}</span>
+        </div>
+        <div className="stat-item">
+          <span className="stat-label">Merged PRs:</span>
+          <span className="stat-value">{stats.prs}</span>
+        </div>
+        <div className="stat-item">
+          <span className="stat-label">Issues:</span>
+          <span className="stat-value">{stats.issues}</span>
+        </div>
+        <div className="stat-item">
+          <span className="stat-label">Reviews:</span>
+          <span className="stat-value">{stats.reviews}</span>
+        </div>
+        <div className="stat-item">
+          <span className="stat-label">Last Updated:</span>
+          <span className="stat-value">{stats.lastUpdated}</span>
+        </div>
+      </div>
 
       <div className="results">
-        <h2>Total: {sorted.length} Contributions</h2>
         {format === 'link' ? (
           <LinkFormat items={paginatedItems} />
         ) : (
