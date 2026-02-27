@@ -1,0 +1,154 @@
+import { useState } from 'react';
+import LinkFormat from './formats/LinkFormat';
+import TableFormat from './formats/TableFormat';
+import { sortContributions } from '../utils/filters';
+import { CopyIcon, DownloadIcon, MarkdownIcon } from './Icons';
+import './ContributionDisplay.css';
+
+function ContributionDisplay({ contributions }) {
+  const [format, setFormat] = useState('link');
+  const [sortBy, setSortBy] = useState('recent');
+  const [currentPage, setCurrentPage] = useState(1);
+  const [copiedButton, setCopiedButton] = useState(null);
+  const itemsPerPage = 20;
+
+  const sorted = sortContributions(contributions.items, sortBy);
+  
+  const totalPages = Math.ceil(sorted.length / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const paginatedItems = sorted.slice(startIndex, startIndex + itemsPerPage);
+
+  const handleButtonCopy = (buttonName) => {
+    setCopiedButton(buttonName);
+    setTimeout(() => setCopiedButton(null), 2000);
+  };
+
+  const handleCopyJSON = () => {
+    navigator.clipboard.writeText(JSON.stringify(contributions, null, 2));
+    handleButtonCopy('json');
+  };
+
+  const handleDownloadJSON = () => {
+    const blob = new Blob([JSON.stringify(contributions, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `${contributions.username}-contributions.json`;
+    a.click();
+    handleButtonCopy('download');
+  };
+
+  const handleCopyMarkdown = () => {
+    const markdown = format === 'link' 
+      ? generateLinkMarkdown(sorted)
+      : generateTableMarkdown(sorted);
+    navigator.clipboard.writeText(markdown);
+    handleButtonCopy('markdown');
+  };
+
+  const handlePageChange = (newPage) => {
+    setCurrentPage(newPage);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const generateLinkMarkdown = (items) => {
+    const groupedByRepo = items.reduce((acc, item) => {
+      if (!acc[item.repo]) acc[item.repo] = [];
+      acc[item.repo].push(item);
+      return acc;
+    }, {});
+
+    let markdown = '# My Contributions\n\n';
+    
+    Object.entries(groupedByRepo).forEach(([repo, contributions]) => {
+      markdown += `## ${repo}\n\n`;
+      contributions.forEach(item => {
+        const badge = item.type === 'prs' ? 'PR' : item.type === 'issues' ? 'Issue' : 'Review';
+        markdown += `- **[${badge}]** [${item.title}](${item.url}) - ${new Date(item.updatedAt).toLocaleDateString()}\n`;
+      });
+      markdown += '\n';
+    });
+
+    return markdown;
+  };
+
+  const generateTableMarkdown = (items) => {
+    let markdown = '# My Contributions\n\n';
+    markdown += '| Type | Repository | Title | Updated | Link |\n';
+    markdown += '|------|------------|-------|---------|------|\n';
+    
+    items.forEach(item => {
+      const badge = item.type === 'prs' ? 'PR' : item.type === 'issues' ? 'Issue' : 'Review';
+      const date = new Date(item.updatedAt).toLocaleDateString();
+      markdown += `| ${badge} | ${item.repo} | ${item.title} | ${date} | [View](${item.url}) |\n`;
+    });
+
+    return markdown;
+  };
+
+  return (
+    <div className="contribution-display">
+      <div className="controls">
+        <div className="control-group">
+          <label>Format:</label>
+          <select value={format} onChange={(e) => setFormat(e.target.value)}>
+            <option value="link">Link Format</option>
+            <option value="table">Table Format</option>
+          </select>
+        </div>
+
+        <div className="control-group">
+          <label>Sort:</label>
+          <select value={sortBy} onChange={(e) => setSortBy(e.target.value)}>
+            <option value="recent">Most Recent</option>
+            <option value="oldest">Oldest First</option>
+            <option value="repo">By Repository</option>
+          </select>
+        </div>
+
+        <div className="actions">
+          <button onClick={handleCopyMarkdown}>
+            <MarkdownIcon /> {copiedButton === 'markdown' ? 'Copied!' : 'Markdown'}
+          </button>
+          <button onClick={handleCopyJSON}>
+            <CopyIcon /> {copiedButton === 'json' ? 'Copied!' : 'JSON'}
+          </button>
+          <button onClick={handleDownloadJSON}>
+            <DownloadIcon /> {copiedButton === 'download' ? 'Downloaded!' : 'Download'}
+          </button>
+        </div>
+      </div>
+
+      <div className="results">
+        <h2>Total: {sorted.length} Contributions</h2>
+        {format === 'link' ? (
+          <LinkFormat items={paginatedItems} />
+        ) : (
+          <TableFormat items={paginatedItems} />
+        )}
+      </div>
+
+      {totalPages > 1 && (
+        <div className="pagination">
+          <button 
+            onClick={() => handlePageChange(currentPage - 1)}
+            disabled={currentPage === 1}
+          >
+            &lt; PREV
+          </button>
+          <span>
+            PAGE {currentPage} / {totalPages}
+          </span>
+          <button 
+            onClick={() => handlePageChange(currentPage + 1)}
+            disabled={currentPage === totalPages}
+          >
+            NEXT &gt;
+          </button>
+        </div>
+      )}
+    </div>
+  );
+}
+
+export default ContributionDisplay;

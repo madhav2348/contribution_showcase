@@ -1,0 +1,66 @@
+.link-format {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.repo-group {
+  border: 2px solid #6366f1;
+  padding: 1rem;
+  background: #0f1229;
+  box-shadow: 0 0 2px rgba(99, 102, 241, 0.5);
+}
+
+.repo-name {
+  font-size: 1rem;
+  margin-bottom: 0.75rem;
+  color: #ffffff;
+  border-bottom: 1px solid #4c5280;
+  padding-bottom: 0.5rem;
+}
+
+.contribution-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.contribution-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.5rem;
+}
+
+.icon {
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.icon svg {
+  width: 16px;
+  height: 16px;
+  fill: #818cf8;
+}
+
+.contribution-item a {
+  flex: 1;
+  color: #e0e6ff;
+  text-decoration: underline;
+  font-size: 0.9rem;
+}
+
+.contribution-item a:hover {
+  color: #a78bfa;
+}
+
+.date {
+  color: #818cf8;
+  font-size: 0.8rem;
+  flex-shrink: 0;
+}

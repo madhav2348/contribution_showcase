@@ -1,0 +1,77 @@
+.table-format {
+  overflow-x: auto;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  border: 2px solid #6366f1;
+  box-shadow: 0 0 2px rgba(99, 102, 241, 0.5);
+}
+
+thead {
+  background: #0f1229;
+}
+
+th {
+  text-align: left;
+  padding: 0.75rem;
+  border: 1px solid #4c5280;
+  color: #ffffff;
+  font-size: 0.85rem;
+}
+
+td {
+  padding: 0.75rem;
+  border: 1px solid #4c5280;
+  font-size: 0.85rem;
+}
+
+tbody tr {
+  background: #1a1f3a;
+}
+
+.icon-cell {
+  width: 40px;
+  text-align: center;
+}
+
+.icon {
+  width: 20px;
+  height: 20px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.icon svg {
+  width: 16px;
+  height: 16px;
+  fill: #818cf8;
+}
+
+.repo-cell {
+  color: #818cf8;
+}
+
+.title-cell {
+  max-width: 400px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: #e0e6ff;
+}
+
+.date-cell {
+  color: #a78bfa;
+  white-space: nowrap;
+}
+
+table a {
+  color: #e0e6ff;
+  text-decoration: underline;
+}
+
+table a:hover {
+  color: #a78bfa;
+}

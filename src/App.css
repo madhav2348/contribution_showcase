@@ -1,0 +1,59 @@
+.app {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem;
+}
+
+.header {
+  text-align: center;
+  margin-bottom: 2rem;
+  padding: 1.5rem;
+  border: 2px solid #7c3aed;
+  background: #1a1f3a;
+  box-shadow: 0 0 2px rgba(124, 58, 237, 0.5);
+}
+
+.header-content {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+}
+
+.icon-wrapper {
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.icon-wrapper svg {
+  width: 28px;
+  height: 28px;
+  fill: #a78bfa;
+}
+
+.header-text {
+  text-align: left;
+}
+
+.header h1 {
+  font-size: 1.8rem;
+  margin-bottom: 0.25rem;
+  color: #ffffff;
+  font-weight: normal;
+  letter-spacing: 2px;
+}
+
+.header p {
+  color: #e0e6ff;
+  font-size: 0.85rem;
+  margin: 0;
+}
+
+.main {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
