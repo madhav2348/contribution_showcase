@@ -1,12 +1,13 @@
 import { useState } from 'react';
 import LinkFormat from './formats/LinkFormat';
 import TableFormat from './formats/TableFormat';
+import EmojiFormat from './formats/EmojiFormat';
 import { sortContributions } from '../utils/filters';
 import { CopyIcon, DownloadIcon, MarkdownIcon } from './Icons';
 import './ContributionDisplay.css';
 
 function ContributionDisplay({ contributions }) {
-  const [format, setFormat] = useState('link');
+  const [format, setFormat] = useState('emoji');
   const [sortBy, setSortBy] = useState('recent');
   const [currentPage, setCurrentPage] = useState(1);
   const [copiedButton, setCopiedButton] = useState(null);
@@ -48,7 +49,9 @@ function ContributionDisplay({ contributions }) {
   };
 
   const handleCopyMarkdown = () => {
-    const markdown = format === 'link' 
+    const markdown = format === 'emoji'
+      ? generateEmojiMarkdown(sorted)
+      : format === 'link' 
       ? generateLinkMarkdown(sorted)
       : generateTableMarkdown(sorted);
     navigator.clipboard.writeText(markdown);
@@ -58,6 +61,34 @@ function ContributionDisplay({ contributions }) {
   const handlePageChange = (newPage) => {
     setCurrentPage(newPage);
     window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const generateEmojiMarkdown = (items) => {
+    const groupedByRepo = items.reduce((acc, item) => {
+      if (!acc[item.repo]) acc[item.repo] = [];
+      acc[item.repo].push(item);
+      return acc;
+    }, {});
+
+    let markdown = '# My Contributions\n\n';
+    
+    // Add statistics in inline format
+    markdown += '## Statistics\n\n';
+    markdown += `**Total Contributions:** ${stats.total} | **Merged PRs:** ${stats.prs} | **Issues:** ${stats.issues} | **Reviews:** ${stats.reviews} | **Last Updated:** ${stats.lastUpdated}\n\n`;
+    markdown += '---\n\n';
+    
+    Object.entries(groupedByRepo).forEach(([repo, contributions]) => {
+      contributions.forEach(item => {
+        const emoji = item.type === 'prs' ? '✅' : item.type === 'issues' ? '🐛' : '💬';
+        const typeLabel = item.type === 'prs' ? 'Merged Pull Request' : item.type === 'issues' ? 'Issue' : 'Review';
+        const date = new Date(item.updatedAt).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
+        
+        markdown += `### 🔥 ${item.repo}\n`;
+        markdown += `${emoji} ${typeLabel} - 🗓 ${date} - 💬 ${item.title} - 🔗 [View](${item.url})\n\n`;
+      });
+    });
+
+    return markdown;
   };
 
   const generateLinkMarkdown = (items) => {
@@ -115,6 +146,7 @@ function ContributionDisplay({ contributions }) {
         <div className="control-group">
           <label>Format:</label>
           <select value={format} onChange={(e) => setFormat(e.target.value)}>
+            <option value="emoji">Emoji Format</option>
             <option value="link">Link Format</option>
             <option value="table">Table Format</option>
           </select>
@@ -165,7 +197,9 @@ function ContributionDisplay({ contributions }) {
       </div>
 
       <div className="results">
-        {format === 'link' ? (
+        {format === 'emoji' ? (
+          <EmojiFormat items={paginatedItems} />
+        ) : format === 'link' ? (
           <LinkFormat items={paginatedItems} />
         ) : (
           <TableFormat items={paginatedItems} />

@@ -1,0 +1,57 @@
+.emoji-format {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.emoji-item {
+  border: 2px solid #4c5280;
+  padding: 1rem;
+  background: #0f1229;
+}
+
+.emoji-repo {
+  font-size: 1.1rem;
+  color: #ffffff;
+  margin-bottom: 0.75rem;
+  border-bottom: 1px solid #4c5280;
+  padding-bottom: 0.5rem;
+}
+
+.emoji-details {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.9rem;
+  color: #e0e6ff;
+  line-height: 1.6;
+}
+
+.emoji-badge {
+  color: #a78bfa;
+  font-weight: 600;
+}
+
+.emoji-separator {
+  color: #4c5280;
+}
+
+.emoji-date {
+  color: #818cf8;
+}
+
+.emoji-title {
+  color: #e0e6ff;
+  flex: 1;
+  min-width: 200px;
+}
+
+.emoji-link a {
+  color: #818cf8;
+  text-decoration: underline;
+}
+
+.emoji-link a:hover {
+  color: #a78bfa;
+}
