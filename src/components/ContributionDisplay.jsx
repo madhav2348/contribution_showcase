@@ -4,6 +4,7 @@ import TableFormat from './formats/TableFormat';
 import EmojiFormat from './formats/EmojiFormat';
 import { sortContributions } from '../utils/filters';
 import { CopyIcon, DownloadIcon, MarkdownIcon } from './Icons';
+import { generateMarkdownByFormat } from './markdownFormats';
 import './ContributionDisplay.css';
 
 function ContributionDisplay({ contributions }) {
@@ -14,18 +15,17 @@ function ContributionDisplay({ contributions }) {
   const itemsPerPage = 20;
 
   const sorted = sortContributions(contributions.items, sortBy);
-  
+
   const totalPages = Math.ceil(sorted.length / itemsPerPage);
   const startIndex = (currentPage - 1) * itemsPerPage;
   const paginatedItems = sorted.slice(startIndex, startIndex + itemsPerPage);
 
-  // Calculate statistics
   const stats = {
     total: contributions.items.length,
-    prs: contributions.items.filter(item => item.type === 'prs').length,
-    issues: contributions.items.filter(item => item.type === 'issues').length,
-    reviews: contributions.items.filter(item => item.type === 'reviews').length,
-    lastUpdated: new Date(contributions.fetchedAt).toLocaleString()
+    prs: contributions.items.filter((item) => item.type === 'prs').length,
+    issues: contributions.items.filter((item) => item.type === 'issues').length,
+    reviews: contributions.items.filter((item) => item.type === 'reviews').length,
+    lastUpdated: new Date(contributions.fetchedAt).toLocaleString(),
   };
 
   const handleButtonCopy = (buttonName) => {
@@ -49,11 +49,7 @@ function ContributionDisplay({ contributions }) {
   };
 
   const handleCopyMarkdown = () => {
-    const markdown = format === 'emoji'
-      ? generateEmojiMarkdown(sorted)
-      : format === 'link' 
-      ? generateLinkMarkdown(sorted)
-      : generateTableMarkdown(sorted);
+    const markdown = generateMarkdownByFormat(format, sorted, stats);
     navigator.clipboard.writeText(markdown);
     handleButtonCopy('markdown');
   };
@@ -63,85 +59,8 @@ function ContributionDisplay({ contributions }) {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  const generateEmojiMarkdown = (items) => {
-    const groupedByRepo = items.reduce((acc, item) => {
-      if (!acc[item.repo]) acc[item.repo] = [];
-      acc[item.repo].push(item);
-      return acc;
-    }, {});
-
-    let markdown = '# My Contributions\n\n';
-    
-    // Add statistics in inline format
-    markdown += '## Statistics\n\n';
-    markdown += `**Total Contributions:** ${stats.total} | **Merged PRs:** ${stats.prs} | **Issues:** ${stats.issues} | **Reviews:** ${stats.reviews} | **Last Updated:** ${stats.lastUpdated}\n\n`;
-    markdown += '---\n\n';
-    
-    Object.entries(groupedByRepo).forEach(([repo, contributions]) => {
-      contributions.forEach(item => {
-        const emoji = item.type === 'prs' ? '✅' : item.type === 'issues' ? '🐛' : '💬';
-        const typeLabel = item.type === 'prs' ? 'Merged Pull Request' : item.type === 'issues' ? 'Issue' : 'Review';
-        const date = new Date(item.updatedAt).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
-        
-        markdown += `### 🔥 ${item.repo}\n`;
-        markdown += `${emoji} ${typeLabel} - 🗓 ${date} - 💬 ${item.title} - 🔗 [View](${item.url})\n\n`;
-      });
-    });
-
-    return markdown;
-  };
-
-  const generateLinkMarkdown = (items) => {
-    const groupedByRepo = items.reduce((acc, item) => {
-      if (!acc[item.repo]) acc[item.repo] = [];
-      acc[item.repo].push(item);
-      return acc;
-    }, {});
-
-    let markdown = '# My Contributions\n\n';
-    
-    // Add statistics in inline format
-    markdown += '## Statistics\n\n';
-    markdown += `**Total Contributions:** ${stats.total} | **Merged PRs:** ${stats.prs} | **Issues:** ${stats.issues} | **Reviews:** ${stats.reviews} | **Last Updated:** ${stats.lastUpdated}\n\n`;
-    markdown += '---\n\n';
-    
-    Object.entries(groupedByRepo).forEach(([repo, contributions]) => {
-      markdown += `## ${repo}\n\n`;
-      contributions.forEach(item => {
-        const badge = item.type === 'prs' ? 'PR' : item.type === 'issues' ? 'Issue' : 'Review';
-        markdown += `- **[${badge}]** [${item.title}](${item.url}) - ${new Date(item.updatedAt).toLocaleDateString()}\n`;
-      });
-      markdown += '\n';
-    });
-
-    return markdown;
-  };
-
-  const generateTableMarkdown = (items) => {
-    let markdown = '# My Contributions\n\n';
-    
-    // Add statistics in inline format
-    markdown += '## Statistics\n\n';
-    markdown += `**Total Contributions:** ${stats.total} | **Merged PRs:** ${stats.prs} | **Issues:** ${stats.issues} | **Reviews:** ${stats.reviews} | **Last Updated:** ${stats.lastUpdated}\n\n`;
-    markdown += '---\n\n';
-    
-    markdown += '## Contributions\n\n';
-    markdown += '| Type | Repository | Title | Updated | Link |\n';
-    markdown += '|------|------------|-------|---------|------|\n';
-    
-    items.forEach(item => {
-      const badge = item.type === 'prs' ? 'PR' : item.type === 'issues' ? 'Issue' : 'Review';
-      const date = new Date(item.updatedAt).toLocaleDateString();
-      markdown += `| ${badge} | ${item.repo} | ${item.title} | ${date} | [View](${item.url}) |\n`;
-    });
-
-    return markdown;
-  };
-
   return (
     <div className="contribution-display">
-      
-
       <div className="controls">
         <div className="control-group">
           <label>Format:</label>
@@ -173,6 +92,7 @@ function ContributionDisplay({ contributions }) {
           </button>
         </div>
       </div>
+
       <div className="stats-section">
         <div className="stat-item">
           <span className="stat-label">Total Contributions:</span>
@@ -208,19 +128,11 @@ function ContributionDisplay({ contributions }) {
 
       {totalPages > 1 && (
         <div className="pagination">
-          <button 
-            onClick={() => handlePageChange(currentPage - 1)}
-            disabled={currentPage === 1}
-          >
+          <button onClick={() => handlePageChange(currentPage - 1)} disabled={currentPage === 1}>
             &lt; PREV
           </button>
-          <span>
-            PAGE {currentPage} / {totalPages}
-          </span>
-          <button 
-            onClick={() => handlePageChange(currentPage + 1)}
-            disabled={currentPage === totalPages}
-          >
+          <span>PAGE {currentPage} / {totalPages}</span>
+          <button onClick={() => handlePageChange(currentPage + 1)} disabled={currentPage === totalPages}>
             NEXT &gt;
           </button>
         </div>
